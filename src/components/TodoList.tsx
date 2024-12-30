@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -13,7 +13,10 @@ interface Todo {
 }
 
 export default function TodoList() {
-  const [todos, setTodos] = useState<Todo[]>([])
+  const [todos, setTodos] = useState<Todo[]>(() => {
+    const savedTodos = localStorage.getItem('todos')
+    return savedTodos ? JSON.parse(savedTodos) : []
+  })
   const [newTodo, setNewTodo] = useState('')
   const [filter, setFilter] = useState('all')
 
@@ -43,6 +46,10 @@ export default function TodoList() {
 
   const openTasks = todos.filter(todo => !todo.completed).length
 
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos))
+  }, [todos])
+
   return (
     <div className="w-full max-w-md space-y-4">
          <div className="text-sm text-muted-foreground text-center">
@@ -58,9 +65,9 @@ export default function TodoList() {
           value={newTodo}
           onChange={(e) => setNewTodo(e.target.value)}
           placeholder="Add a new todo"
-          className="flex-grow shadow-none"
+          className="flex-grow shadow-none outline-none rounded-full "
         />
-        <Button type="submit">Add</Button>
+        <Button type="submit" className='rounded-full px-7'>Add</Button>
       </form>
 
       <Tabs defaultValue="all" onValueChange={setFilter}>
@@ -106,4 +113,4 @@ function renderTodoList(todos: Todo[], onToggle: (id: number) => void, onRemove:
       </ul>
     )
   }
-  
+
