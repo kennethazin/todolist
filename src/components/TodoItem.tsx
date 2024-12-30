@@ -35,7 +35,7 @@ export default function TodoItem({ todo, onToggle, onRemove }: TodoItemProps) {
         onClick={() => onRemove(todo.id)}
         className="text-destructive"
       >
-        <Trash2 className="h-4 w-4" />
+        <Trash2 className="h-3 w-3" />
       </Button>
     </li>
   )
