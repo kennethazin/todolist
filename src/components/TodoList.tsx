@@ -13,12 +13,24 @@ interface Todo {
 }
 
 export default function TodoList() {
-  const [todos, setTodos] = useState<Todo[]>(() => {
-    const savedTodos = localStorage.getItem('todos')
-    return savedTodos ? JSON.parse(savedTodos) : []
-  })
+  const [todos, setTodos] = useState<Todo[]>([])
   const [newTodo, setNewTodo] = useState('')
   const [filter, setFilter] = useState('all')
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTodos = localStorage.getItem('todos')
+      if (savedTodos) {
+        setTodos(JSON.parse(savedTodos))
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('todos', JSON.stringify(todos))
+    }
+  }, [todos])
 
   const addTodo = (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,10 +57,6 @@ export default function TodoList() {
   })
 
   const openTasks = todos.filter(todo => !todo.completed).length
-
-  useEffect(() => {
-    localStorage.setItem('todos', JSON.stringify(todos))
-  }, [todos])
 
   return (
     <div className="w-full max-w-md space-y-4">
