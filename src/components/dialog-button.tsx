@@ -15,11 +15,21 @@ import { Label } from "@/src/components/ui/label";
 import { createClient } from "@/utils/supabase/client";
 import { ConfirmationDialog } from "./email-confirmation";
 import { User } from "@supabase/supabase-js";
+import { useToast } from "@/hooks/use-toast";
 
-export default function DialogButton() {
+interface DialogButtonProps {
+  showDialog: boolean;
+  setShowDialog: (show: boolean) => void;
+}
+
+export default function DialogButton({
+  showDialog,
+  setShowDialog,
+}: DialogButtonProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isSignUp, setIsSignUp] = useState(false);
   const supabase = createClient();
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -33,17 +43,28 @@ export default function DialogButton() {
   }, [supabase]);
 
   return (
-    <div className="ml-5 mt-5 flex items-center ">
+    <div className="ml-5 mt-5 flex items-center fixed ">
       <>
         {user ? (
           <Button
             variant="outline"
-            onClick={() => signout().then(() => window.location.reload())}
+            onClick={() => {
+              signout()
+                .then(() => {
+                  window.location.reload();
+                })
+                .then(() => {
+                  toast({
+                    description: "Signed out successfully",
+                    duration: 5000,
+                  });
+                });
+            }}
           >
             Sign out
           </Button>
         ) : (
-          <Dialog>
+          <Dialog open={showDialog} onOpenChange={setShowDialog}>
             <DialogTrigger asChild>
               <Button variant="outline" onClick={() => setIsSignUp(false)}>
                 Sign in
