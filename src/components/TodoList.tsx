@@ -11,8 +11,10 @@ import {
 } from "@/src/components/ui/tabs";
 import TodoItem from "./TodoItem";
 import { createClient } from "@/utils/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/src/components/ui/toast";
 import LoadingSkeleton from "./loading-skeleton";
+import DialogButton from "./dialog-button";
 
 interface Todo {
   id: number;
@@ -26,6 +28,8 @@ export default function TodoList() {
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
+  const { toast } = useToast();
+  const [showSignInDialog, setShowSignInDialog] = useState(false);
 
   // load todos
   useEffect(() => {
@@ -51,6 +55,27 @@ export default function TodoList() {
     };
 
     fetchTodos();
+
+    const loginCheckTimeout = setTimeout(() => {
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (!user) {
+          toast({
+            title: "Sign in required",
+            description: "Please sign in to add and view your saved todos.",
+            action: (
+              <ToastAction
+                altText="Sign in"
+                onClick={() => setShowSignInDialog(true)}
+              >
+                Sign in
+              </ToastAction>
+            ),
+          });
+        }
+      });
+    }, 5000);
+
+    return () => clearTimeout(loginCheckTimeout);
   }, [supabase]);
 
   useEffect(() => {
@@ -121,6 +146,12 @@ export default function TodoList() {
         <LoadingSkeleton />
       ) : (
         <>
+          <div className="hidden">
+            <DialogButton
+              showDialog={showSignInDialog}
+              setShowDialog={setShowSignInDialog}
+            />
+          </div>
           <div className="text-sm text-muted-foreground text-center">
             {openTasks === 0
               ? "There are no open tasks"
