@@ -1,6 +1,8 @@
 import { Checkbox } from "@/src/components/ui/checkbox";
 import { Button } from "@/src/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { X } from "lucide-react";
+import { Spinner } from "./ui/spinner";
+import { useState } from "react";
 
 interface Todo {
   id: number;
@@ -15,6 +17,14 @@ interface TodoItemProps {
 }
 
 export default function TodoItem({ todo, onToggle, onRemove }: TodoItemProps) {
+  const [isRemoving, setIsRemoving] = useState(false);
+
+  const handleRemove = async (id: number) => {
+    setIsRemoving(true);
+    await onRemove(id);
+    setIsRemoving(false);
+  };
+
   return (
     <li className="flex items-center space-x-2 bg-secondary p-2 rounded-md">
       <Checkbox
@@ -34,10 +44,15 @@ export default function TodoItem({ todo, onToggle, onRemove }: TodoItemProps) {
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => onRemove(todo.id)}
-        className="text-destructive"
+        onClick={() => handleRemove(todo.id)}
+        className="hover:opacity-75 flex items-center justify-center"
+        disabled={isRemoving}
       >
-        <Trash2 className="h-3 w-3" />
+        {isRemoving ? (
+          <Spinner variant="circle" />
+        ) : (
+          <X className="hover:fill-yellow-50" />
+        )}
       </Button>
     </li>
   );

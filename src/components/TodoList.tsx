@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
+import { Loader2 } from "lucide-react";
 import {
   Tabs,
   TabsList,
@@ -27,9 +28,11 @@ export default function TodoList() {
   const [newTodo, setNewTodo] = useState("");
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [todoAdding, setTodoAdding] = useState(false);
+
   const supabase = createClient();
-  const { toast } = useToast();
   const [showSignInDialog, setShowSignInDialog] = useState(false);
+  const { toast } = useToast();
 
   // load todos
   useEffect(() => {
@@ -85,6 +88,7 @@ export default function TodoList() {
   }, [todos]);
   const addTodo = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTodoAdding(true);
 
     if (newTodo.trim()) {
       const { data, error } = await supabase
@@ -100,6 +104,7 @@ export default function TodoList() {
         setNewTodo("");
       }
     }
+    setTodoAdding(false);
   };
 
   const toggleTodo = async (id: number) => {
@@ -167,9 +172,16 @@ export default function TodoList() {
               placeholder="Add a new todo"
               className="flex-grow shadow-none outline-none  rounded-lg"
             />
-            <Button type="submit" className="rounded-lg px-7">
-              Add
-            </Button>
+            {todoAdding ? (
+              <Button disabled>
+                <Loader2 className="animate-spin" />
+                Please wait
+              </Button>
+            ) : (
+              <Button type="submit" className="rounded-lg px-7">
+                Add
+              </Button>
+            )}
           </form>
 
           <Tabs defaultValue="all" onValueChange={setFilter}>
