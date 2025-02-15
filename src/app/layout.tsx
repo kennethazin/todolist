@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Minimal Todo List App",
-  description: "Created by Kenneth",
+  title: "Noto – Minimal Todo List",
+  description: "Created by Kenneth John Ras",
 };
 
 export default function RootLayout({
